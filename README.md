@@ -1,5 +1,11 @@
 # 🎯 Plataforma de Financiamento Coletivo (Reward-Based Crowdfunding)
 
+# Meu Projeto
+
+Bem-vindo ao meu projeto!
+
+![Logo do Projeto](https://github.com/Luccas84/ShopVerse-Mini-E-commerce/blob/main/Projeto_18.png)
+
 Uma plataforma fullstack profissional de financiamento coletivo baseada em recompensas, desenvolvida com **Node.js + Express + SQLite (Prisma)** no backend e **HTML/CSS/JavaScript** no frontend.
 
 ## 📋 Funcionalidades
