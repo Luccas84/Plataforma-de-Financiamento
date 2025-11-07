@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plataforma de Financiamento Coletivo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html" class="logo">🎯 CrowdFund</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="projetos.html">Projetos</a></li>
+        <li id="navAuth">
+          <a href="login.html" class="btn btn-primary">Entrar</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Transforme Ideias em Realidade</h1>
+    <p>Financie projetos incríveis e faça parte de uma comunidade que apoia a inovação</p>
+    <a href="projetos.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Explorar Projetos</a>
+  </section>
+
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Projetos em Destaque</h2>
+    <div id="projetosContainer" class="card-grid">
+      <div class="loading">Carregando projetos...</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { carregarProjetos } from './js/projetos.js';
+    import { verificarAutenticacao, fazerLogout } from './js/auth.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const usuario = verificarAutenticacao();
+      const navAuth = document.getElementById('navAuth');
+      
+      if (usuario) {
+        navAuth.innerHTML = `
+          <a href="dashboard.html" class="btn btn-success">Dashboard</a>
+          <button onclick="logout()" class="btn btn-danger" style="margin-left: 0.5rem;">Sair</button>
+        `;
+      }
+      
+      carregarProjetos();
+    });
+
+    window.logout = () => {
+      import('./js/auth.js').then(module => {
+        module.fazerLogout();
+      });
+    };
+  </script>
+</body>
+</html>
+

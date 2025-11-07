@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Projeto - Plataforma de Financiamento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/projetos.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html" class="logo">🎯 CrowdFund</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="projetos.html">Projetos</a></li>
+        <li id="navAuth">
+          <a href="login.html" class="btn btn-primary">Entrar</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="projeto-detalhe">
+      <img id="projetoImagem" src="" alt="Projeto" class="projeto-detalhe-img">
+      <div class="projeto-info">
+        <h1 id="projetoTitulo">Carregando...</h1>
+        <p id="projetoDescricao"></p>
+        <p style="color: var(--cor-texto-claro); margin-top: 1rem;">
+          Criado por <strong id="projetoCriador"></strong>
+        </p>
+      </div>
+
+      <div class="projeto-meta">
+        <div class="meta-item">
+          <strong id="arrecadado">R$ 0,00</strong>
+          <span>Arrecadado</span>
+        </div>
+        <div class="meta-item">
+          <strong id="meta">R$ 0,00</strong>
+          <span>Meta</span>
+        </div>
+        <div class="meta-item">
+          <strong id="apoiadores">0</strong>
+          <span>Apoiadores</span>
+        </div>
+      </div>
+
+      <div class="progress-bar" style="margin: 2rem 0;">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <button id="btnContribuir" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+        <i class='bx bx-heart'></i> Contribuir para este projeto
+      </button>
+
+      <div class="recompensas-section">
+        <h2>Recompensas</h2>
+        <div id="recompensasContainer" class="recompensas-grid">
+          <div class="loading">Carregando recompensas...</div>
+        </div>
+      </div>
+
+      <div class="contribuicoes-section">
+        <h2>Contribuições Recentes</h2>
+        <div id="contribuicoesContainer">
+          <p class="text-center">Carregando contribuições...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Contribuição -->
+  <div id="modalContribuicao" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Fazer Contribuição</h2>
+        <button class="close-btn" onclick="fecharModal('modalContribuicao')">&times;</button>
+      </div>
+      <form id="formContribuicao">
+        <div class="form-group">
+          <label for="valorContribuicao">Valor da Contribuição (R$)</label>
+          <input type="number" id="valorContribuicao" name="valor" step="0.01" min="1" required>
+          <small style="color: var(--cor-texto-claro);">Selecione uma recompensa acima ou digite um valor personalizado</small>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirmar Contribuição</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { carregarDetalhesProjeto } from './js/projetos.js';
+    import { verificarAutenticacao, fazerLogout } from './js/auth.js';
+    import { fecharModal } from './js/utils.js';
+    import './js/contribuicoes.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const usuario = verificarAutenticacao();
+      const navAuth = document.getElementById('navAuth');
+      
+      if (usuario) {
+        navAuth.innerHTML = `
+          <a href="dashboard.html" class="btn btn-success">Dashboard</a>
+          <button onclick="logout()" class="btn btn-danger" style="margin-left: 0.5rem;">Sair</button>
+        `;
+      }
+      
+      carregarDetalhesProjeto();
+    });
+
+    window.logout = () => {
+      import('./js/auth.js').then(module => {
+        module.fazerLogout();
+      });
+    };
+
+    window.fecharModal = fecharModal;
+  </script>
+</body>
+</html>
+

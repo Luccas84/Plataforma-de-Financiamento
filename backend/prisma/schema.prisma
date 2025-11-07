@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Usuario {
+  id            Int            @id @default(autoincrement())
+  nome          String
+  email         String         @unique
+  senha         String
+  projetos      Projeto[]
+  contribuicoes Contribuicao[]
+}
+
+model Projeto {
+  id            Int            @id @default(autoincrement())
+  titulo        String
+  descricao     String
+  meta          Float
+  arrecadado    Float          @default(0)
+  imagem        String
+  criador       Usuario        @relation(fields: [criadorId], references: [id])
+  criadorId     Int
+  recompensas   Recompensa[]
+  contribuicoes Contribuicao[]
+  criadoEm      DateTime       @default(now())
+}
+
+model Recompensa {
+  id            Int           @id @default(autoincrement())
+  descricao     String
+  valorMin      Float
+  projeto       Projeto       @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  projetoId     Int
+  contribuicoes Contribuicao[]
+}
+
+model Contribuicao {
+  id          Int        @id @default(autoincrement())
+  valor       Float
+  usuario     Usuario    @relation(fields: [usuarioId], references: [id])
+  usuarioId  Int
+  projeto     Projeto    @relation(fields: [projetoId], references: [id])
+  projetoId  Int
+  recompensa Recompensa? @relation(fields: [recompensaId], references: [id])
+  recompensaId Int?
+  criadoEm    DateTime   @default(now())
+}
+

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Plataforma de Financiamento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html" class="logo">🎯 CrowdFund</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="projetos.html">Projetos</a></li>
+        <li>
+          <a href="dashboard.html" class="btn btn-success">Dashboard</a>
+          <button onclick="logout()" class="btn btn-danger" style="margin-left: 0.5rem;">Sair</button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="dashboard-header">
+      <h1>Meu Dashboard</h1>
+      <button class="btn btn-primary" onclick="abrirModal('modalNovoProjeto')">
+        <i class='bx bx-plus'></i> Criar Novo Projeto
+      </button>
+    </div>
+
+    <div class="dashboard-stats" id="dashboardStats">
+      <div class="stat-card">
+        <h3>R$ 0,00</h3>
+        <p>Total Arrecadado</p>
+      </div>
+      <div class="stat-card">
+        <h3>0</h3>
+        <p>Apoiadores</p>
+      </div>
+      <div class="stat-card">
+        <h3>0</h3>
+        <p>Projetos</p>
+      </div>
+    </div>
+
+    <div class="dashboard-projetos">
+      <h2>Meus Projetos</h2>
+      <div id="projetosDashboard">
+        <div class="loading">Carregando projetos...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Novo Projeto -->
+  <div id="modalNovoProjeto" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Criar Novo Projeto</h2>
+        <button class="close-btn" onclick="fecharModal('modalNovoProjeto')">&times;</button>
+      </div>
+      <form id="formNovoProjeto">
+        <div class="form-group">
+          <label for="titulo">Título do Projeto</label>
+          <input type="text" id="titulo" name="titulo" required>
+        </div>
+        <div class="form-group">
+          <label for="descricao">Descrição</label>
+          <textarea id="descricao" name="descricao" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="meta">Meta (R$)</label>
+          <input type="number" id="meta" name="meta" step="0.01" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="imagem">URL da Imagem</label>
+          <input type="url" id="imagem" name="imagem" required>
+          <small style="color: var(--cor-texto-claro);">Cole a URL de uma imagem do projeto</small>
+        </div>
+        <div class="form-group">
+          <label>Recompensas (opcional)</label>
+          <div id="recompensasForm">
+            <div class="recompensa-form-item">
+              <input type="text" placeholder="Descrição da recompensa" class="recompensa-desc">
+              <input type="number" placeholder="Valor mínimo" step="0.01" min="0" class="recompensa-valor">
+              <button type="button" class="btn btn-danger" onclick="removerRecompensa(this)">Remover</button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-success" onclick="adicionarRecompensa()" style="margin-top: 0.5rem;">
+            <i class='bx bx-plus'></i> Adicionar Recompensa
+          </button>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Criar Projeto</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Editar Projeto -->
+  <div id="modalEditarProjeto" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Editar Projeto</h2>
+        <button class="close-btn" onclick="fecharModal('modalEditarProjeto')">&times;</button>
+      </div>
+      <form id="formEditarProjeto">
+        <input type="hidden" id="editarProjetoId">
+        <div class="form-group">
+          <label for="editarTitulo">Título do Projeto</label>
+          <input type="text" id="editarTitulo" name="titulo" required>
+        </div>
+        <div class="form-group">
+          <label for="editarDescricao">Descrição</label>
+          <textarea id="editarDescricao" name="descricao" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="editarMeta">Meta (R$)</label>
+          <input type="number" id="editarMeta" name="meta" step="0.01" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="editarImagem">URL da Imagem</label>
+          <input type="url" id="editarImagem" name="imagem" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { contribuicoesAPI, projetosAPI } from './js/api.js';
+    import { verificarAutenticacao, fazerLogout, requerAutenticacao } from './js/auth.js';
+    import { showToast, formatarMoeda, calcularPorcentagem, abrirModal, fecharModal } from './js/utils.js';
+
+    const usuario = requerAutenticacao();
+
+    async function carregarDashboard() {
+      try {
+        const data = await contribuicoesAPI.dashboard(usuario.id);
+        exibirEstatisticas(data.estatisticas);
+        exibirProjetos(data.projetos);
+      } catch (error) {
+        showToast('Erro ao carregar dashboard', 'error');
+        console.error(error);
+      }
+    }
+
+    function exibirEstatisticas(stats) {
+      document.querySelector('#dashboardStats .stat-card:nth-child(1) h3').textContent = formatarMoeda(stats.totalArrecadado);
+      document.querySelector('#dashboardStats .stat-card:nth-child(2) h3').textContent = stats.totalApoiadores;
+      document.querySelector('#dashboardStats .stat-card:nth-child(3) h3').textContent = stats.totalProjetos;
+    }
+
+    function exibirProjetos(projetos) {
+      const container = document.getElementById('projetosDashboard');
+      
+      if (projetos.length === 0) {
+        container.innerHTML = '<p class="text-center">Você ainda não criou nenhum projeto.</p>';
+        return;
+      }
+
+      container.innerHTML = projetos.map(projeto => {
+        const porcentagem = calcularPorcentagem(projeto.arrecadado, projeto.meta);
+        const apoiadores = projeto._count?.contribuicoes || 0;
+        
+        return `
+          <div class="projeto-item">
+            <div class="projeto-item-info">
+              <h3>${projeto.titulo}</h3>
+              <p>${formatarMoeda(projeto.arrecadado)} de ${formatarMoeda(projeto.meta)} • ${apoiadores} apoiadores</p>
+              <div class="progress-bar" style="margin-top: 0.5rem;">
+                <div class="progress-fill" style="width: ${porcentagem}%"></div>
+              </div>
+            </div>
+            <div class="projeto-item-actions">
+              <button class="action-btn" onclick="editarProjeto(${projeto.id})" title="Editar">
+                <i class='bx bx-edit'></i>
+              </button>
+              <button class="action-btn delete" onclick="deletarProjeto(${projeto.id})" title="Deletar">
+                <i class='bx bx-trash'></i>
+              </button>
+              <a href="projeto-detalhe.html?id=${projeto.id}" class="action-btn" title="Ver">
+                <i class='bx bx-show'></i>
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Criar projeto
+    document.getElementById('formNovoProjeto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const recompensas = [];
+      document.querySelectorAll('#recompensasForm .recompensa-form-item').forEach(item => {
+        const desc = item.querySelector('.recompensa-desc').value;
+        const valor = item.querySelector('.recompensa-valor').value;
+        if (desc && valor) {
+          recompensas.push({ descricao: desc, valorMin: parseFloat(valor) });
+        }
+      });
+
+      try {
+        await projetosAPI.criar({
+          titulo: document.getElementById('titulo').value,
+          descricao: document.getElementById('descricao').value,
+          meta: parseFloat(document.getElementById('meta').value),
+          imagem: document.getElementById('imagem').value,
+          recompensas: recompensas.length > 0 ? recompensas : undefined
+        });
+        
+        showToast('Projeto criado com sucesso!', 'success');
+        fecharModal('modalNovoProjeto');
+        document.getElementById('formNovoProjeto').reset();
+        carregarDashboard();
+      } catch (error) {
+        showToast(error.message || 'Erro ao criar projeto', 'error');
+      }
+    });
+
+    // Editar projeto
+    window.editarProjeto = async (id) => {
+      try {
+        const projeto = await projetosAPI.buscar(id);
+        document.getElementById('editarProjetoId').value = projeto.id;
+        document.getElementById('editarTitulo').value = projeto.titulo;
+        document.getElementById('editarDescricao').value = projeto.descricao;
+        document.getElementById('editarMeta').value = projeto.meta;
+        document.getElementById('editarImagem').value = projeto.imagem;
+        abrirModal('modalEditarProjeto');
+      } catch (error) {
+        showToast('Erro ao carregar projeto', 'error');
+      }
+    };
+
+    document.getElementById('formEditarProjeto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      try {
+        const id = document.getElementById('editarProjetoId').value;
+        await projetosAPI.editar(id, {
+          titulo: document.getElementById('editarTitulo').value,
+          descricao: document.getElementById('editarDescricao').value,
+          meta: parseFloat(document.getElementById('editarMeta').value),
+          imagem: document.getElementById('editarImagem').value
+        });
+        
+        showToast('Projeto atualizado com sucesso!', 'success');
+        fecharModal('modalEditarProjeto');
+        carregarDashboard();
+      } catch (error) {
+        showToast(error.message || 'Erro ao atualizar projeto', 'error');
+      }
+    });
+
+    // Deletar projeto
+    window.deletarProjeto = async (id) => {
+      if (!confirm('Tem certeza que deseja deletar este projeto?')) return;
+      
+      try {
+        await projetosAPI.deletar(id);
+        showToast('Projeto deletado com sucesso!', 'success');
+        carregarDashboard();
+      } catch (error) {
+        showToast(error.message || 'Erro ao deletar projeto', 'error');
+      }
+    };
+
+    // Funções auxiliares
+    window.adicionarRecompensa = () => {
+      const container = document.getElementById('recompensasForm');
+      const item = document.createElement('div');
+      item.className = 'recompensa-form-item';
+      item.innerHTML = `
+        <input type="text" placeholder="Descrição da recompensa" class="recompensa-desc">
+        <input type="number" placeholder="Valor mínimo" step="0.01" min="0" class="recompensa-valor">
+        <button type="button" class="btn btn-danger" onclick="removerRecompensa(this)">Remover</button>
+      `;
+      container.appendChild(item);
+    };
+
+    window.removerRecompensa = (btn) => {
+      btn.closest('.recompensa-form-item').remove();
+    };
+
+    window.logout = fazerLogout;
+    window.abrirModal = abrirModal;
+    window.fecharModal = fecharModal;
+
+    document.addEventListener('DOMContentLoaded', carregarDashboard);
+  </script>
+</body>
+</html>
+

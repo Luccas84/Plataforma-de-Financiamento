@@ -1,0 +1,126 @@
+/* Página de Projetos */
+.projetos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.projeto-detalhe {
+  background-color: var(--cor-branco);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--sombra);
+  margin-bottom: 2rem;
+}
+
+.projeto-detalhe-img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.projeto-info {
+  margin-bottom: 2rem;
+}
+
+.projeto-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: var(--cor-fundo);
+  border-radius: 8px;
+}
+
+.meta-item {
+  text-align: center;
+}
+
+.meta-item strong {
+  display: block;
+  font-size: 1.5rem;
+  color: var(--cor-primaria);
+  margin-bottom: 0.5rem;
+}
+
+.meta-item span {
+  color: var(--cor-texto-claro);
+  font-size: 0.9rem;
+}
+
+/* Recompensas */
+.recompensas-section {
+  margin-top: 3rem;
+}
+
+.recompensas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.recompensa-card {
+  background-color: var(--cor-fundo);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: var(--transicao);
+  cursor: pointer;
+}
+
+.recompensa-card:hover {
+  border-color: var(--cor-primaria);
+  transform: translateY(-3px);
+}
+
+.recompensa-card.selected {
+  border-color: var(--cor-primaria);
+  background-color: rgba(69, 123, 157, 0.1);
+}
+
+.recompensa-valor {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cor-primaria);
+  margin-bottom: 0.5rem;
+}
+
+.recompensa-descricao {
+  color: var(--cor-texto-claro);
+  font-size: 0.9rem;
+}
+
+/* Contribuições */
+.contribuicoes-section {
+  margin-top: 3rem;
+}
+
+.contribuicao-item {
+  background-color: var(--cor-fundo);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contribuicao-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.contribuicao-valor {
+  font-weight: 600;
+  color: var(--cor-sucesso);
+  font-size: 1.1rem;
+}
+
